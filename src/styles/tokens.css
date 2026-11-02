@@ -1,0 +1,15 @@
+/* 디자인 전체에서 쓰는 값은 여기서만 정한다. 색이 다르면 이 파일만 고치면 된다. */
+:root {
+  --blue: #1f5fd9; /* 헤더, 주 버튼 */
+  --blue-light: #8dbdf7; /* 대각선 띠 */
+  --bg: #e8f0fd; /* 화면 바탕 */
+  --card: #ffffff;
+  --text: #16202e;
+  --muted: #667085;
+  --line: #d9e1ec;
+  --match: #15803d; --match-bg: #dcf5e4;
+  --check: #b45309; --check-bg: #fef0c7;
+  --nomatch: #c81e1e; --nomatch-bg: #fde8e8;
+  --radius: 16px;
+  --app-width: 430px;
+}
