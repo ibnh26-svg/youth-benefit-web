@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { isLoggedIn } from '../api/client';
 import { useApi } from '../hooks/useApi';
 import { Loading, ErrorBox, Empty } from '../components/StateBox';
+import { SearchIcon, CloseIcon, ClockIcon, BenefitIllustration } from '../components/Icons';
 import PolicyCard, { ClosingCard } from '../components/PolicyCard';
 
 const CATEGORIES = ['전체', '일자리', '주거', '교육', '복지문화', '참여권리'];
@@ -29,7 +30,8 @@ export default function HomePage() {
 
   // "인천 미추홀구 · 대학 재학": 학력 코드를 /codes 의 이름으로 바꾼다
   const schoolLabel = codes.data?.schoolCd?.find((c) => c.code === profile.data?.schoolCd)?.label;
-  const heroSub = [profile.data?.residenceName, schoolLabel].filter(Boolean).join(' · ');
+  const jobLabel = codes.data?.jobCd?.find((c) => c.code === profile.data?.jobCd)?.label;
+  const heroSub = [profile.data?.residenceName, schoolLabel, jobLabel].filter(Boolean).join(' · ');
 
   // 프로필이 없으면(404) 처음 온 사람이다. "나중에 입력"을 안 눌렀으면 내 정보로 보낸다.
   useEffect(() => {
@@ -38,25 +40,34 @@ export default function HomePage() {
     }
   }, [profile.error, navigate]);
 
-  const banner = suggestions.data?.items?.[0];
+  const [hiddenBanner, setHiddenBanner] = useState(() => sessionStorage.getItem('hiddenBanner'));
+  const firstBanner = suggestions.data?.items?.[0];
+  const banner = firstBanner && firstBanner.message !== hiddenBanner ? firstBanner : null;
+
+  function hideBanner() {
+    sessionStorage.setItem('hiddenBanner', firstBanner.message);
+    setHiddenBanner(firstBanner.message);
+  }
   const counts = matches.data?.counts;
 
   return (
     <>
-      <section className="hero">
-        <p>{account.data ? `${account.data.nickname} 님 맞춤 혜택` : '내 맞춤 혜택'}</p>
+      <section className="hero hero-home">
+        <BenefitIllustration />
+        <p>{account.data ? <><b>{account.data.nickname}</b> 님 맞춤 혜택</> : '내 맞춤 혜택'}</p>
         <h1>받을 수 있는 혜택 <em>{counts ? counts.match + counts.needsCheck : 0}건</em></h1>
         {heroSub && <p className="hero-sub">{heroSub}</p>}
-        <Link to="/search" className="search-entry">궁금한 혜택을 물어보세요</Link>
+        <Link to="/search" className="search-entry"><SearchIcon size={20} />궁금한 혜택을 물어보세요</Link>
         {banner && (
           <div className="banner">
             <span>{banner.message}</span>
             <Link to="/profile">입력하기 →</Link>
+            <button className="icon-btn" aria-label="안내 닫기" onClick={hideBanner}><CloseIcon size={16} /></button>
           </div>
         )}
       </section>
 
-      <h2>이번 주 마감 {closing.data ? closing.data.totalElements : ''}</h2>
+      <h2 className="section-title"><ClockIcon size={20} className="c-gold" />이번 주 마감 {closing.data ? closing.data.totalElements : ''}</h2>
       {closing.data?.content.length === 0 && (
         <Empty title="이번 주 마감인 공고가 없어요">
           7일 안에 마감하는 공고가 생기면 여기에 모아 드려요.
@@ -70,9 +81,9 @@ export default function HomePage() {
 
       {counts && (
         <div className="count-box card">
-          <div><b className="c-match">{counts.match}</b>조건 일치</div>
-          <div><b className="c-check">{counts.needsCheck}</b>확인 필요</div>
-          <div><b className="c-nomatch">{counts.noMatch}</b>조건 불일치</div>
+          <div><b className="c-match">{counts.match}</b>✓ 조건 일치</div>
+          <div><b className="c-check">{counts.needsCheck}</b>? 확인 필요</div>
+          <div><b className="c-nomatch">{counts.noMatch}</b>✕ 조건 불일치</div>
         </div>
       )}
 
@@ -96,9 +107,9 @@ export default function HomePage() {
           <option value="NEEDS_CHECK">확인 필요</option>
         </select>
       </div>
-      <div className="chips">
-        <button className={sort === 'recommended' ? 'chip active' : 'chip'} onClick={() => { setSort('recommended'); setPage(0); }}>추천순</button>
-        <button className={sort === 'deadline' ? 'chip active' : 'chip'} onClick={() => { setSort('deadline'); setPage(0); }}>마감순</button>
+      <div className="segmented">
+        <button className={sort === 'recommended' ? 'active' : ''} onClick={() => { setSort('recommended'); setPage(0); }}>추천순</button>
+        <button className={sort === 'deadline' ? 'active' : ''} onClick={() => { setSort('deadline'); setPage(0); }}>마감순</button>
       </div>
 
       {matches.loading && <Loading />}
@@ -115,7 +126,7 @@ export default function HomePage() {
       )}
 
       {counts?.noMatch > 0 && !showNoMatch && !verdict && (
-        <button className="btn-secondary" onClick={() => setShowNoMatch(true)}>
+        <button className="btn-secondary btn-card" onClick={() => setShowNoMatch(true)}>
           조건 불일치 {counts.noMatch}건도 보기
         </button>
       )}

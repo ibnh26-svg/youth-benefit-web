@@ -28,6 +28,10 @@ export const EyeIcon = (p) => <Svg {...p}><path d="M2 12s3.5-7 10-7 10 7 10 7-3.
 export const EyeOffIcon = (p) => <Svg {...p}><path d="M3 3l18 18" /><path d="M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6A17 17 0 0 0 2 12s3.5 7 10 7a9.8 9.8 0 0 0 5.4-1.6" /><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" /></Svg>;
 export const CloseIcon = (p) => <Svg {...p}><path d="M6 6l12 12M18 6 6 18" /></Svg>;
 export const HelpIcon = (p) => <Svg {...p}><circle cx="12" cy="12" r="9" /><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.5v.7" /><path d="M12 17h.01" /></Svg>;
+export const ClockIcon = (p) => <Svg {...p}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></Svg>;
+export const StarIcon = (p) => <Svg {...p}><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z" /></Svg>;
+export const BuildingIcon = (p) => <Svg {...p}><path d="M4 21h16" /><path d="M6 21V10l6-5 6 5v11" /><path d="M10 21v-5h4v5" /></Svg>;
+export const ChevronIcon = (p) => <Svg {...p}><path d="m6 9 6 6 6-6" /></Svg>;
 export const LockIcon = (p) => <Svg {...p}><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></Svg>;
 
 // 머리글 왼쪽의 체크 로고
@@ -36,5 +40,19 @@ export function Logo() {
     <span className="logo-mark" aria-hidden="true">
       <Svg size={16} strokeWidth="3"><path d="m5 12 4.5 4.5L19 7" /></Svg>
     </span>
+  );
+}
+
+// 맞춤 홈 오른쪽 위 그림: 서류 한 장 + 동전. 원본 그림 파일을 받으면 그걸로 바꾸면 된다.
+export function BenefitIllustration() {
+  return (
+    <svg className="hero-illust" width="96" height="96" viewBox="0 0 96 96" fill="none" aria-hidden="true">
+      <circle cx="18" cy="74" r="3" fill="#8dbdf7" />
+      <path d="M84 14v12M78 20h12" stroke="#8dbdf7" strokeWidth="2.5" strokeLinecap="round" />
+      <rect x="22" y="10" width="44" height="58" rx="8" fill="#1f5fd9" stroke="#eaf2ff" strokeWidth="3" />
+      <path d="M32 26h24M32 35h24M32 44h14" stroke="#eaf2ff" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="64" cy="66" r="15" fill="#ffd34d" stroke="#f0b400" strokeWidth="3" />
+      <path d="M57 60l3.5 12 3.5-9 3.5 9L71 60M56 65.5h16" stroke="#9a6b00" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }

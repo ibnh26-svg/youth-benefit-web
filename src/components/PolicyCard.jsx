@@ -6,8 +6,19 @@ const VERDICT_CLASS = {
   NO_MATCH: 'badge-nomatch',
 };
 
+const VERDICT_MARK = { MATCH: '✓', NEEDS_CHECK: '?', NO_MATCH: '✕' };
+
 export function VerdictBadge({ verdict, label }) {
-  return <span className={`badge ${VERDICT_CLASS[verdict]}`}>{label}</span>;
+  return <span className={`badge ${VERDICT_CLASS[verdict]}`}>{VERDICT_MARK[verdict]} {label}</span>;
+}
+
+// 마감일 문자열로 D-day 계산 (상세 화면처럼 서버가 dDay를 안 줄 때)
+export function computeDDay(endDate) {
+  if (!endDate) return null;
+  const end = new Date(`${endDate.slice(0, 10)}T00:00:00`);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return Math.round((end - today) / 86400000);
 }
 
 // 짧은 표시: "D-22" / "오늘 마감" / "상시"
@@ -58,8 +69,10 @@ export function ClosingCard({ item }) {
   const { policy, verdict, verdictLabel, dDay } = item;
   return (
     <Link to={`/policies/${policy.id}`} className="card closing-card">
-      <span className={dDay !== null && dDay <= 3 ? 'dday urgent' : 'dday'}>{dDayLabel(dDay)}</span>
-      <VerdictBadge verdict={verdict} label={verdictLabel} />
+      <span className="row-between">
+        <span className="dday-pill">{dDayLabel(dDay)}</span>
+        <VerdictBadge verdict={verdict} label={verdictLabel} />
+      </span>
       <strong className="title-clamp">{policy.title}</strong>
       <span className="muted">{shortDate(policy.applyEndDate)} 마감</span>
     </Link>
