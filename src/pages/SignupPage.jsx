@@ -18,8 +18,8 @@ export default function SignupPage() {
     setError(null);
     try {
       const { email, password, nickname } = form;
-      await api('/api/v1/auth/signup', { method: 'POST', body: { email, password, nickname } });
-      navigate('/verify-email', { state: { email } });
+      const res = await api('/api/v1/auth/signup', { method: 'POST', body: { email, password, nickname } });
+      navigate('/verify-email', { state: { email, devCode: res?.devCode } });
     } catch (err) {
       setError(err); // 409 EMAIL_TAKEN이면 "이미 가입된 이메일이에요" 문구가 그대로 나온다
     }

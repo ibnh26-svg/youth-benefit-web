@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { api, saveLogin } from '../api/client';
 import { useCountdown } from '../hooks/useCountdown';
-import { CodeInput } from '../components/AuthInputs';
+import { CodeInput, DevCodeBox } from '../components/AuthInputs';
 import { ClockIcon, MailIcon, InfoIcon } from '../components/Icons';
 
 export default function VerifyEmailPage() {
   const navigate = useNavigate();
-  const email = useLocation().state?.email; // 가입 화면이 넘겨준 이메일
+  const location = useLocation();
+  const email = location.state?.email; // 가입 화면이 넘겨준 이메일
+  const [devCode, setDevCode] = useState(location.state?.devCode ?? null);
   const [code, setCode] = useState('');
   const [error, setError] = useState(null);
   const [info, setInfo] = useState(null);
@@ -32,6 +34,7 @@ export default function VerifyEmailPage() {
     try {
       const sent = await api('/api/v1/auth/email/resend', { method: 'POST', body: { email } });
       timer.restart(sent.expiresInSeconds);
+      setDevCode(sent.devCode ?? null);
       setCode('');
       setInfo('새 코드를 보냈어요. 이전 코드는 쓸 수 없어요.');
     } catch (err) {
@@ -55,6 +58,7 @@ export default function VerifyEmailPage() {
           <span className="timer row-inline"><ClockIcon size={15} />{timer.text} 남음</span>
         </div>
         <CodeInput value={code} onChange={setCode} />
+        <DevCodeBox code={devCode} onUse={setCode} />
         <p className="hint">코드는 10분 동안 유효해요.</p>
         <button className="btn-primary" disabled={code.length !== 6}>확인</button>
         <div className="row-between">

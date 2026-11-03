@@ -306,3 +306,8 @@ textarea { width: 100%; font: inherit; font-size: 15px; font-weight: 400; paddin
 .steps span.on { background: #ffd34d; }
 form.card { display: block; }
 .code-boxes input.filled { border-color: var(--blue); }
+
+/* 개발용 인증 코드 상자 (npm run dev 에서만 보임) */
+.dev-code { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: #fff8e1; border: 1px dashed #f0b400; color: #7a5a00; border-radius: 10px; padding: 8px 12px; font-size: 13px; margin: 4px 0 8px; }
+.dev-code b { letter-spacing: 2px; margin-left: 4px; }
+.dev-code button { border: 0; background: #f0b400; color: #fff; font: inherit; font-size: 12px; font-weight: 700; border-radius: 99px; padding: 5px 12px; cursor: pointer; }

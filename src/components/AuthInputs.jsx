@@ -70,6 +70,17 @@ export function CodeInput({ value, onChange }) {
   );
 }
 
+// 개발용: 임시 서버는 메일 대신 응답에 devCode를 준다. 개발 모드(npm run dev)에서만 보인다.
+export function DevCodeBox({ code, onUse }) {
+  if (!code || !import.meta.env.DEV) return null;
+  return (
+    <div className="dev-code">
+      <span>개발용 인증 코드 <b>{code}</b></span>
+      <button type="button" onClick={() => onUse(String(code))}>채우기</button>
+    </div>
+  );
+}
+
 // 비밀번호 규칙 한 줄: 맞으면 초록 ✓, 아니면 회색 ○
 export function Rule({ ok, children }) {
   return (

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api, saveLogin } from '../api/client';
-import { PasswordInput, CodeInput, Rule } from '../components/AuthInputs';
+import { PasswordInput, CodeInput, Rule, DevCodeBox } from '../components/AuthInputs';
 import { useCountdown } from '../hooks/useCountdown';
 import { ClockIcon, MailIcon } from '../components/Icons';
 
@@ -14,6 +14,7 @@ export default function ForgotPasswordPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState(null);
+  const [devCode, setDevCode] = useState(null);
   const timer = useCountdown(0);
 
   const longEnough = newPassword.length >= 8 && newPassword.length <= 64;
@@ -26,6 +27,7 @@ export default function ForgotPasswordPage() {
     try {
       const sent = await api('/api/v1/auth/password/forgot', { method: 'POST', body: { email } });
       timer.restart(sent?.expiresInSeconds ?? 600);
+      setDevCode(sent?.devCode ?? null);
       setCode('');
       setStep(2);
     } catch (err) {
@@ -79,6 +81,7 @@ export default function ForgotPasswordPage() {
               <span className="timer row-inline"><ClockIcon size={15} />{timer.text} 남음</span>
             </div>
             <CodeInput value={code} onChange={setCode} />
+            <DevCodeBox code={devCode} onUse={setCode} />
             <div className="row-between">
               <span className="hint">코드는 10분 동안 유효해요.</span>
               <button type="button" className="link" onClick={() => sendCode()}>다시 보내기</button>
