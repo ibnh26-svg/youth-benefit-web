@@ -16,10 +16,7 @@ export default function Layout() {
 
   return (
     <div className="app">
-      <header className="app-header">
-        <Link to="/" className="brand"><Logo />청년혜택 길잡이</Link>
-        <Link to="/profile" className="header-user" aria-label="내 정보"><UserIcon size={20} /></Link>
-      </header>
+      <AppHeader />
       <main className="app-main">
         <Outlet />
       </main>
@@ -35,5 +32,15 @@ export default function Layout() {
         ))}
       </nav>
     </div>
+  );
+}
+
+// 머리글. 로그인·회원가입 화면에서는 오른쪽 사람 버튼 없이 쓴다.
+export function AppHeader({ showUser = true }) {
+  return (
+    <header className="app-header">
+      <Link to="/" className="brand"><Logo />청년혜택 길잡이</Link>
+      {showUser && <Link to="/profile" className="header-user" aria-label="내 정보"><UserIcon size={20} /></Link>}
+    </header>
   );
 }

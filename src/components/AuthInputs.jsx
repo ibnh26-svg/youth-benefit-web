@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { EyeIcon, EyeOffIcon } from './Icons';
+import { EyeIcon, EyeOffIcon, CheckIcon } from './Icons';
 
 // 눈 아이콘으로 비밀번호를 보였다 숨겼다 하는 입력칸
 export function PasswordInput({ label, ...props }) {
@@ -60,11 +60,22 @@ export function CodeInput({ value, onChange }) {
           aria-label={`인증 코드 ${i + 1}번째 자리`}
           inputMode="numeric"
           autoComplete={i === 0 ? 'one-time-code' : 'off'}
+          className={d ? 'filled' : ''}
           value={d}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
         />
       ))}
     </div>
+  );
+}
+
+// 비밀번호 규칙 한 줄: 맞으면 초록 ✓, 아니면 회색 ○
+export function Rule({ ok, children }) {
+  return (
+    <p className={ok ? 'rule ok' : 'rule'}>
+      {ok ? <CheckIcon size={14} strokeWidth="3" /> : <span className="rule-dot" />}
+      {children}
+    </p>
   );
 }

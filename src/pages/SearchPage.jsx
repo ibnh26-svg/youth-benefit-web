@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
-import { Loading, ErrorBox, Empty } from '../components/StateBox';
+import { Loading, ErrorBox } from '../components/StateBox';
 import PolicyCard from '../components/PolicyCard';
+import { SearchIcon, ClockIcon, CloseIcon } from '../components/Icons';
 
 function readRecent() {
   try {
@@ -24,6 +25,7 @@ function toChips(u) {
 }
 
 export default function SearchPage() {
+  const navigate = useNavigate();
   const [text, setText] = useState('');
   const [query, setQuery] = useState('');
   const [removed, setRemoved] = useState([]);
@@ -31,6 +33,11 @@ export default function SearchPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [recent, setRecent] = useState(readRecent);
+
+  function saveRecent(next) {
+    setRecent(next);
+    try { localStorage.setItem('recentSearches', JSON.stringify(next)); } catch { /* 저장 못 해도 괜찮다 */ }
+  }
 
   async function search(q, nextRemoved = []) {
     if (!q.trim()) return;
@@ -42,9 +49,7 @@ export default function SearchPage() {
       const params = new URLSearchParams({ q });
       nextRemoved.forEach(([name, value]) => params.append(name, value));
       setResult(await api(`/api/v1/search?${params}`));
-      const nextRecent = [q, ...recent.filter((r) => r !== q)].slice(0, 5);
-      setRecent(nextRecent);
-      localStorage.setItem('recentSearches', JSON.stringify(nextRecent));
+      saveRecent([q, ...recent.filter((r) => r !== q)].slice(0, 5));
     } catch (err) {
       setError(err); // 429 RATE_LIMITED면 "검색이 너무 잦아요" 문구가 그대로 나온다
     } finally {
@@ -52,44 +57,79 @@ export default function SearchPage() {
     }
   }
 
+  const needsCheck = result?.content.filter((item) => item.verdict === 'NEEDS_CHECK').length ?? 0;
+
   return (
     <>
       <section className="hero">
-        <form onSubmit={(e) => { e.preventDefault(); search(text); }} className="row-two">
+        <button className="link-white back" onClick={() => navigate('/')}>← 홈</button>
+        <form onSubmit={(e) => { e.preventDefault(); search(text); }} className="search-box">
+          <SearchIcon size={20} />
           <input aria-label="검색어" value={text} onChange={(e) => setText(e.target.value)} placeholder="월세 지원받을 수 있는 거 있어?" />
-          <button className="btn-white-small">검색</button>
+          <button className="search-btn">검색</button>
         </form>
       </section>
 
       {loading && <Loading />}
       {error && <ErrorBox error={error} />}
 
-      {result && (
+      {result && !loading && (
         <>
-          <p className="label">이 조건으로 찾았어요 <span className="muted">필요 없는 조건은 ×로 빼세요</span></p>
+          <div className="row-between">
+            <p className="label">이 조건으로 찾았어요</p>
+            <span className="hint">필요 없는 조건은 ×로 빼세요</span>
+          </div>
           <div className="chips">
             {toChips(result.understood).map((chip) => (
-              <button key={chip.text} className="chip" onClick={() => search(query, [...removed, chip.off])}>
-                {chip.text} ×
+              <button key={chip.text} className="chip chip-soft" onClick={() => search(query, [...removed, chip.off])}>
+                {chip.text} <CloseIcon size={12} />
               </button>
             ))}
           </div>
-          {result.notice && <p className="muted">{result.notice}</p>}
-          {result.content.length === 0 && (
-            <Empty title="맞는 공고를 찾지 못했어요">{result.message ?? '조건을 하나 빼고 다시 찾아보세요.'}</Empty>
+
+          {result.content.length === 0 ? (
+            <>
+              <section className="card empty-card">
+                <SearchIcon size={26} />
+                <strong>맞는 공고를 찾지 못했어요</strong>
+                <p className="muted">{result.message ?? '조건을 하나 빼고 다시 찾아보거나, 알고 있는 공고를 직접 등록해 주세요.'}</p>
+              </section>
+              <section className="card card-blue">
+                <h2>찾는 공고가 따로 있나요?</h2>
+                <p>공고 링크나 캡처를 올리면 준비함에 담아 마감을 챙겨 드려요.</p>
+                <Link className="btn-white" to="/custom-policies/new">공고 직접 등록하기</Link>
+              </section>
+              <p className="notice">등록한 공고는 나만 볼 수 있어요.</p>
+            </>
+          ) : (
+            <>
+              {(needsCheck > 0 || result.notice) && (
+                <section className="card card-blue compact">
+                  {needsCheck > 0 && <strong>확인할 공고 {needsCheck}건이 있어요.</strong>}
+                  {result.notice && <p>{result.notice}</p>}
+                </section>
+              )}
+              {result.content.map((item) => <PolicyCard key={item.policy.id} item={item} />)}
+              <div className="row-between under-save">
+                <span className="hint">찾는 공고가 따로 있나요?</span>
+                <Link className="link" to="/custom-policies/new">직접 등록하기 →</Link>
+              </div>
+            </>
           )}
-          {result.content.map((item) => <PolicyCard key={item.policy.id} item={item} />)}
-          <Link className="link" to="/custom-policies/new">찾는 공고가 따로 있나요? 직접 등록하기 →</Link>
         </>
       )}
 
-      {!result && recent.length > 0 && (
-        <section className="card">
+      {recent.length > 0 && !loading && (
+        <>
           <h2>최근 검색</h2>
-          {recent.map((r) => (
-            <button key={r} className="link" onClick={() => { setText(r); search(r); }}>{r}</button>
-          ))}
-        </section>
+          <section className="card recent-card">
+            {recent.map((r) => (
+              <button key={r} className="list-row recent-row" onClick={() => { setText(r); search(r); }}>
+                <span className="row-inline"><ClockIcon size={16} />{r}</span>
+              </button>
+            ))}
+          </section>
+        </>
       )}
     </>
   );

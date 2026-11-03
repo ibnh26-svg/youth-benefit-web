@@ -3,8 +3,9 @@ import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { useApi } from '../hooks/useApi';
 import { Loading, ErrorBox, Empty } from '../components/StateBox';
+import { SlidersIcon } from '../components/Icons';
 
-// "오늘 08:00" / "어제 21:30" / "11.02"
+// "오늘 08:00" / "어제 18:00" / "10.20 14:00"
 function timeText(iso) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return '';
@@ -14,7 +15,7 @@ function timeText(iso) {
   yesterday.setDate(today.getDate() - 1);
   if (date.toDateString() === today.toDateString()) return `오늘 ${hhmm}`;
   if (date.toDateString() === yesterday.toDateString()) return `어제 ${hhmm}`;
-  return `${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+  return `${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')} ${hhmm}`;
 }
 
 const TABS = [
@@ -24,6 +25,26 @@ const TABS = [
   { value: 'CORRECTED', label: '정정' },
   { value: 'CANCELLED', label: '취소' },
 ];
+
+// 알림 종류. 서버 tab 값이 있으면 그걸, 없으면 label 글자로 짐작한다.
+function kindOf(n) {
+  if (TABS.some((t) => t.value && t.value === n.tab)) return n.tab;
+  const label = n.label ?? '';
+  if (label.includes('연장')) return 'EXTENDED';
+  if (label.includes('정정')) return 'CORRECTED';
+  if (label.includes('취소')) return 'CANCELLED';
+  if (label.includes('새')) return 'NEW';
+  return 'OTHER';
+}
+
+// 종류마다 카드 아래 링크
+function linkOf(n, kind) {
+  if (kind === 'NEW') return { to: '/', text: '맞춤 홈에서 보기 →' };
+  if (kind === 'CORRECTED') return { to: '/prep', text: '준비함 체크리스트에 반영돼요 →' };
+  if (kind === 'CANCELLED') return { to: '/prep', text: '준비함에서 확인 →' };
+  if (n.policyId) return { to: `/policies/${n.policyId}`, text: '공고 보기 →' };
+  return null;
+}
 
 export default function NotificationsPage() {
   const [tab, setTab] = useState('');
@@ -39,12 +60,13 @@ export default function NotificationsPage() {
       <section className="hero">
         <div className="row-between">
           <p>알림</p>
-          <span>
-            <button className="btn-white-small" onClick={readAll}>모두 읽음</button>{' '}
-            <Link className="btn-white-small" to="/notifications/settings">설정</Link>
+          <span className="row-inline">
+            <button className="btn-white-small" onClick={readAll}>모두 읽음</button>
+            <Link className="btn-white-small with-icon" to="/notifications/settings"><SlidersIcon size={16} />설정</Link>
           </span>
         </div>
         <h1>새 공고와 바뀐 공고를<br />알려 드려요</h1>
+        <p className="hero-sub">새 맞춤 공고와 변경 소식을 모아 봐요.</p>
       </section>
 
       <div className="chips">
@@ -57,20 +79,24 @@ export default function NotificationsPage() {
       {list.error && <ErrorBox error={list.error} onRetry={list.reload} />}
       {list.data?.items.length === 0 && <Empty title="알림이 없어요">담은 공고가 바뀌면 여기에 알려 드려요.</Empty>}
 
-      {list.data?.items.map((n) => (
-        <article className="card" key={n.id}>
-          <div className="row-between">
-            <span className="row-inline">
-              {!n.read && <span className="unread-dot" aria-label="안 읽음" />}
-              <span className="chip-small">{n.label}</span>
-            </span>
-            <span className="muted">{timeText(n.createdAt)}</span>
-          </div>
-          <h3>{n.policyTitle ?? n.summary}</h3>
-          {n.policyTitle && <p className="muted">{n.summary}</p>}
-          {n.policyId && <Link className="link" to={`/policies/${n.policyId}`}>공고 보기 →</Link>}
-        </article>
-      ))}
+      {list.data?.items.map((n) => {
+        const kind = kindOf(n);
+        const link = linkOf(n, kind);
+        return (
+          <article className={n.read ? 'card' : 'card card-unread'} key={n.id}>
+            <div className="row-between">
+              <span className={`kind-chip kind-${kind}`}>{n.label}</span>
+              <span className="row-inline hint">
+                {!n.read && <span className="unread-dot" aria-label="안 읽음" />}
+                {timeText(n.createdAt)}
+              </span>
+            </div>
+            <h3>{n.policyTitle ?? n.summary}</h3>
+            {n.policyTitle && <p className="muted">{n.summary}</p>}
+            {link && <Link className="link" to={link.to}>{link.text}</Link>}
+          </article>
+        );
+      })}
     </>
   );
 }

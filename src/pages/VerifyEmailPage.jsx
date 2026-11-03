@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { api, saveLogin } from '../api/client';
 import { useCountdown } from '../hooks/useCountdown';
 import { CodeInput } from '../components/AuthInputs';
+import { ClockIcon, MailIcon, InfoIcon } from '../components/Icons';
 
 export default function VerifyEmailPage() {
   const navigate = useNavigate();
@@ -41,18 +42,27 @@ export default function VerifyEmailPage() {
   return (
     <form onSubmit={verify}>
       <section className="hero">
-        <Link className="link-white" to="/signup">← 회원가입</Link>
+        <Link className="link-white back" to="/signup">← 회원가입</Link>
         <h1>이메일 인증</h1>
-        <p className="hero-sub">{email} 로 보낸 6자리 코드를 입력하세요.</p>
+        <p className="hero-sub">메일로 보낸 6자리 코드를 입력하세요.</p>
+        <span className="email-chip"><MailIcon size={15} />{email}</span>
       </section>
       <section className="card">
         {error && <p className="error-box">{error.message}</p>}
-        {info && <p className="muted">{info}</p>}
-        <div className="row-between"><span className="label">인증 코드</span><span className="deadline">{timer.text} 남음</span></div>
+        {info && <p className="hint ok">{info}</p>}
+        <div className="row-between">
+          <span className="label">인증 코드</span>
+          <span className="timer row-inline"><ClockIcon size={15} />{timer.text} 남음</span>
+        </div>
         <CodeInput value={code} onChange={setCode} />
+        <p className="hint">코드는 10분 동안 유효해요.</p>
         <button className="btn-primary" disabled={code.length !== 6}>확인</button>
-        <button type="button" className="link" onClick={resend}>코드 다시 보내기</button>
+        <div className="row-between">
+          <span className="hint">메일이 안 왔나요?</span>
+          <button type="button" className="link" onClick={resend}>코드 다시 보내기</button>
+        </div>
       </section>
+      <p className="info-line"><InfoIcon size={16} />스팸함도 확인해 주세요. 코드를 다시 보내면 이전 코드는 쓸 수 없어요.</p>
     </form>
   );
 }

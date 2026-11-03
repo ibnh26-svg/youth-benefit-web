@@ -32,6 +32,12 @@ export const ClockIcon = (p) => <Svg {...p}><circle cx="12" cy="12" r="9" /><pat
 export const StarIcon = (p) => <Svg {...p}><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z" /></Svg>;
 export const BuildingIcon = (p) => <Svg {...p}><path d="M4 21h16" /><path d="M6 21V10l6-5 6 5v11" /><path d="M10 21v-5h4v5" /></Svg>;
 export const ChevronIcon = (p) => <Svg {...p}><path d="m6 9 6 6 6-6" /></Svg>;
+export const SlidersIcon = (p) => <Svg {...p}><path d="M4 7h10M18 7h2M4 17h4M12 17h8" /><circle cx="16" cy="7" r="2" /><circle cx="10" cy="17" r="2" /></Svg>;
+export const ImageIcon = (p) => <Svg {...p}><rect x="3" y="5" width="18" height="14" rx="2" /><circle cx="9" cy="10" r="1.5" /><path d="m21 16-5-5-8 8" /></Svg>;
+export const MailIcon = (p) => <Svg {...p}><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></Svg>;
+export const InfoIcon = (p) => <Svg {...p}><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></Svg>;
+export const ChatIcon = (p) => <Svg {...p} fill="currentColor" stroke="none"><path d="M12 4C7 4 3 7.1 3 11c0 2.4 1.6 4.6 4 5.9L6 21l4.3-2.7c.6.1 1.1.1 1.7.1 5 0 9-3.1 9-7s-4-7.4-9-7.4z" /></Svg>;
+export const CheckIcon = (p) => <Svg {...p}><path d="m5 12 4.5 4.5L19 7" /></Svg>;
 export const LockIcon = (p) => <Svg {...p}><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></Svg>;
 
 // 머리글 왼쪽의 체크 로고

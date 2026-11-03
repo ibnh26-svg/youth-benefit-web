@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
+import { ImageIcon } from '../components/Icons';
 
 const EMPTY = { title: '', organization: '', applyEndDate: '', applyEndTime: '', category: '', memo: '', applyUrl: '' };
 const CATEGORIES = ['일자리', '주거', '교육', '복지문화', '참여권리'];
@@ -76,30 +77,54 @@ export default function CustomPolicyPage() {
 
   return (
     <form onSubmit={submit}>
-      <section className="hero"><h1>찾은 공고를<br />직접 등록해요</h1><p className="hero-sub">등록한 공고는 나만 볼 수 있고, 준비함에 담겨요.</p></section>
-
-      <section className="card">
-        <label>공고 링크<input type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://" /></label>
-        <button type="button" className="btn-secondary" disabled={!url || importing} onClick={importLink}>
-          {importing ? '불러오는 중…' : '불러오기'}
-        </button>
-        {notice && <p className="muted">{notice}</p>}
+      <section className="hero">
+        <button type="button" className="link-white back" onClick={() => navigate(-1)}>← 뒤로</button>
+        <h1>찾은 공고를<br />직접 등록해요</h1>
+        <p className="hero-sub">등록한 공고는 나만 볼 수 있고, 준비함에 담겨요.</p>
       </section>
 
       <section className="card">
-        <h2>공고 정보</h2>
+        <p className="label first">공고 링크</p>
+        <div className="row-two tight">
+          <input aria-label="공고 링크" type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://" />
+          <button type="button" className="btn-soft" disabled={!url || importing} onClick={importLink}>
+            {importing ? '불러오는 중…' : '불러오기'}
+          </button>
+        </div>
+        {notice && <p className="hint">{notice}</p>}
+        <div className="or-divider"><span>또는</span></div>
+        {/* 이미지 업로드 API가 아직 없어서 「준비 중」으로 보여 준다 (가이드 0장) */}
+        <div className="upload-box" aria-disabled="true">
+          <ImageIcon size={22} />
+          <strong>공고 캡처 올리기</strong>
+          <span className="hint">준비 중이에요 · 공고 전체가 보이는 이미지</span>
+        </div>
+        <p className="gray-note">신분증·성적증명서 같은 개인 서류는 올리지 마세요.</p>
+      </section>
+
+      <section className="card">
+        <div className="row-between">
+          <h2 className="card-title">공고 정보</h2>
+          <span className="hint">불러온 내용을 확인·수정해요</span>
+        </div>
         <label>공고명<input name="title" required maxLength={100} value={form.title} onChange={change} /></label>
-        <label>기관<input name="organization" maxLength={100} value={form.organization} onChange={change} /></label>
-        <label>신청 마감일<input name="applyEndDate" type="date" value={form.applyEndDate} onChange={change} /></label>
-        <label>시각 (선택)<input name="applyEndTime" type="time" value={form.applyEndTime} onChange={change} /></label>
+        <label>기관<input name="organization" maxLength={100} value={form.organization} onChange={change} placeholder="기관명" /></label>
+        <div className="row-two tight field-pair">
+          <label>신청 마감일<input name="applyEndDate" type="date" value={form.applyEndDate} onChange={change} /></label>
+          <label>시각 (선택)<input name="applyEndTime" type="time" value={form.applyEndTime} onChange={change} /></label>
+        </div>
         <label>분류
           <select name="category" value={form.category} onChange={change}>
             <option value="">선택 안 함</option>
             {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
           </select>
         </label>
-        <label>메모 (선택)<input name="memo" maxLength={2000} value={form.memo} onChange={change} /></label>
-        <label>신청 링크 (선택)<input name="applyUrl" type="url" value={form.applyUrl} onChange={change} /></label>
+        <label>메모 (선택)<textarea name="memo" maxLength={2000} rows={3} value={form.memo} onChange={change} placeholder="지원 내용, 신청 방법 등" /></label>
+        <label>신청 링크 (선택)<input name="applyUrl" type="url" value={form.applyUrl} onChange={change} placeholder="https://" /></label>
+        <div className="row-between under-save top-gap">
+          <span className="chip-small">직접 등록 · 판정 없음</span>
+          <span className="hint">조건 비교는 하지 않아요</span>
+        </div>
       </section>
 
       {error && <p className="error-box">{error.message}</p>}

@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
-import Layout from './components/Layout';
+import Layout, { AppHeader } from './components/Layout';
 import HomePage from './pages/HomePage';
 import PolicyDetailPage from './pages/PolicyDetailPage';
 import ProfilePage from './pages/ProfilePage';
@@ -47,6 +47,7 @@ export default function App() {
 function PlainLayout() {
   return (
     <div className="app app-plain">
+      <AppHeader showUser={false} />
       <main className="app-main">
         <Outlet />
       </main>
