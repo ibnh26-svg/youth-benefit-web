@@ -3,6 +3,16 @@ import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { useApi } from '../hooks/useApi';
 import { Loading, ErrorBox, Empty } from '../components/StateBox';
+import { dDayLabel } from '../components/PolicyCard';
+import { HelpIcon, CloseIcon } from '../components/Icons';
+
+function readGuideClosed() {
+  try {
+    return localStorage.getItem('prepGuideClosed') === 'yes';
+  } catch {
+    return false;
+  }
+}
 
 const FILTERS = [
   { value: 'ALL', label: '전체' },
@@ -15,6 +25,12 @@ export default function PrepPage() {
   const list = useApi('/api/v1/me/applications');
   const [filter, setFilter] = useState('ALL');
   const [openId, setOpenId] = useState(null);
+  const [guideOpen, setGuideOpen] = useState(() => !readGuideClosed());
+
+  function closeGuide() {
+    setGuideOpen(false);
+    try { localStorage.setItem('prepGuideClosed', 'yes'); } catch { /* 저장 못 해도 괜찮다 */ }
+  }
 
   if (list.loading) return <Loading />;
   if (list.error) return <ErrorBox error={list.error} onRetry={list.reload} />;
@@ -26,11 +42,28 @@ export default function PrepPage() {
     <>
       <section className="hero">
         <div className="row-between">
-          <p>준비함</p>
+          <p className="row-inline">
+            준비함
+            <button className="icon-btn-white" aria-label="서류 준비 안내" onClick={() => setGuideOpen(!guideOpen)}><HelpIcon size={18} /></button>
+          </p>
           <Link className="btn-white-small" to="/custom-policies/new">+ 공고 직접 추가</Link>
         </div>
         <h1>담아 둔 공고를<br />마감 전에 준비해요</h1>
       </section>
+
+      {guideOpen && (
+        <section className="guide-box">
+          <div className="row-between">
+            <strong>서류는 이렇게 준비해요</strong>
+            <button className="icon-btn" aria-label="안내 닫기" onClick={closeGuide}><CloseIcon size={18} /></button>
+          </div>
+          <ol>
+            <li>공고를 담으면 필요한 서류가 체크리스트로 만들어져요.</li>
+            <li>서류 아래 발급 안내를 눌러 어디서 떼는지 확인하세요.</li>
+            <li>준비한 서류는 체크하고, 다 끝나면 상태를 「신청 완료」로 바꿔요.</li>
+          </ol>
+        </section>
+      )}
 
       <div className="chips">
         {FILTERS.map((f) => (
@@ -46,8 +79,8 @@ export default function PrepPage() {
         <article className="card" key={a.id}>
           <div className="row-between">
             <span className="chip-small">{a.statusLabel}</span>
-            <span className="deadline">
-              {a.deadline.dDay === null ? '상시 모집' : `D-${a.deadline.dDay}`}
+            <span className={a.deadline.dDay !== null && a.deadline.dDay <= 3 ? 'deadline urgent' : 'deadline'}>
+              {a.deadline.dDay === null ? '상시 모집' : dDayLabel(a.deadline.dDay)}
             </span>
           </div>
           <h3>{a.title}</h3>

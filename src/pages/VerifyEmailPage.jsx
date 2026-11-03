@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { api, saveLogin } from '../api/client';
 import { useCountdown } from '../hooks/useCountdown';
+import { CodeInput } from '../components/AuthInputs';
 
 export default function VerifyEmailPage() {
   const navigate = useNavigate();
@@ -48,14 +49,7 @@ export default function VerifyEmailPage() {
         {error && <p className="error-box">{error.message}</p>}
         {info && <p className="muted">{info}</p>}
         <div className="row-between"><span className="label">인증 코드</span><span className="deadline">{timer.text} 남음</span></div>
-        <input
-          aria-label="인증 코드"
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          maxLength={6}
-          value={code}
-          onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-        />
+        <CodeInput value={code} onChange={setCode} />
         <button className="btn-primary" disabled={code.length !== 6}>확인</button>
         <button type="button" className="link" onClick={resend}>코드 다시 보내기</button>
       </section>

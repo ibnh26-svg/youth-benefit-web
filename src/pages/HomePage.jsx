@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { isLoggedIn } from '../api/client';
 import { useApi } from '../hooks/useApi';
 import { Loading, ErrorBox, Empty } from '../components/StateBox';
-import PolicyCard from '../components/PolicyCard';
+import PolicyCard, { ClosingCard } from '../components/PolicyCard';
 
 const CATEGORIES = ['전체', '일자리', '주거', '교육', '복지문화', '참여권리'];
 
@@ -25,6 +25,11 @@ export default function HomePage() {
   const suggestions = useApi('/api/v1/me/suggestions');
   const profile = useApi('/api/v1/me/profile');
   const account = useApi(isLoggedIn() ? '/api/v1/me/account' : null);
+  const codes = useApi('/api/v1/codes');
+
+  // "인천 미추홀구 · 대학 재학": 학력 코드를 /codes 의 이름으로 바꾼다
+  const schoolLabel = codes.data?.schoolCd?.find((c) => c.code === profile.data?.schoolCd)?.label;
+  const heroSub = [profile.data?.residenceName, schoolLabel].filter(Boolean).join(' · ');
 
   // 프로필이 없으면(404) 처음 온 사람이다. "나중에 입력"을 안 눌렀으면 내 정보로 보낸다.
   useEffect(() => {
@@ -41,7 +46,7 @@ export default function HomePage() {
       <section className="hero">
         <p>{account.data ? `${account.data.nickname} 님 맞춤 혜택` : '내 맞춤 혜택'}</p>
         <h1>받을 수 있는 혜택 <em>{counts ? counts.match + counts.needsCheck : 0}건</em></h1>
-        <p className="hero-sub">{profile.data?.residenceName}</p>
+        {heroSub && <p className="hero-sub">{heroSub}</p>}
         <Link to="/search" className="search-entry">궁금한 혜택을 물어보세요</Link>
         {banner && (
           <div className="banner">
@@ -59,7 +64,7 @@ export default function HomePage() {
       )}
       <div className="scroll-row">
         {closing.data?.content.map((item) => (
-          <PolicyCard key={item.policy.id} item={item} />
+          <ClosingCard key={item.policy.id} item={item} />
         ))}
       </div>
 

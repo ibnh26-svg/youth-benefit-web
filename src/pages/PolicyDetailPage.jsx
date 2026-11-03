@@ -69,11 +69,15 @@ export default function PolicyDetailPage() {
 
       <section className="card">
         <h2>제출 서류</h2>
-        <ul>
-          {p.documents.map((d) => (
-            <li key={d.name}>{d.name}{d.optional && ' (선택)'}</li>
-          ))}
-        </ul>
+        {p.documents.length === 0 ? (
+          <p className="muted">공고에 서류 안내가 없어요. 원문에서 확인해 주세요.</p>
+        ) : (
+          <ul>
+            {p.documents.map((d) => (
+              <li key={d.name}>{d.name}{d.optional && ' (선택)'}</li>
+            ))}
+          </ul>
+        )}
       </section>
 
       <div className="row-two">

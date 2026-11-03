@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
+import { PasswordInput } from '../components/AuthInputs';
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -30,9 +31,10 @@ export default function SignupPage() {
       <section className="card">
         {error && <p className="error-box">{error.message}</p>}
         <label>이메일<input name="email" type="email" required value={form.email} onChange={change} /></label>
-        <label>비밀번호<input name="password" type="password" required value={form.password} onChange={change} /></label>
+        <PasswordInput label="비밀번호" name="password" required value={form.password} onChange={change} />
         <p className="muted">{longEnough ? '✓' : '○'} 8자 이상 · {mixed ? '✓' : '○'} 영문과 숫자를 함께 사용</p>
-        <label>비밀번호 확인<input name="confirm" type="password" required value={form.confirm} onChange={change} /></label>
+        <PasswordInput label="비밀번호 확인" name="confirm" required value={form.confirm} onChange={change} />
+        {form.confirm && !same && <p className="field-error">비밀번호가 서로 달라요.</p>}
         <label>닉네임<input name="nickname" required minLength={2} maxLength={10} value={form.nickname} onChange={change} /></label>
         <button className="btn-primary" disabled={!longEnough || !mixed || !same}>가입하고 인증 코드 받기</button>
       </section>

@@ -113,28 +113,52 @@ export default function ProfilePage() {
       </section>
 
       <section className="card">
-        <label>생년월일
-          <input type="date" value={form.birthDate} onChange={(e) => change('birthDate', e.target.value)} />
-        </label>
+        <FieldHead label="생년월일" empty={!form.birthDate} onUnknown={() => change('birthDate', '')} />
+        <input
+          aria-label="생년월일"
+          className={form.birthDate ? '' : 'is-unknown'}
+          type="date"
+          value={form.birthDate}
+          onChange={(e) => change('birthDate', e.target.value)}
+        />
         {fieldErrors.birthDate && <p className="field-error">{fieldErrors.birthDate}</p>}
 
-        <label>지역
-          <select value={form.sido} onChange={(e) => { change('sido', e.target.value); change('zipCd', ''); }}>
-            <option value="">모름</option>
+        <FieldHead label="지역" empty={!form.zipCd} onUnknown={() => setForm((old) => ({ ...old, sido: '', zipCd: '' }))} />
+        <label className="no-label">
+          <select
+            aria-label="시도"
+            className={form.sido ? '' : 'is-unknown'}
+            value={form.sido}
+            onChange={(e) => { const v = e.target.value; setForm((old) => ({ ...old, sido: v, zipCd: '' })); }}
+          >
+            <option value="">시·도 선택</option>
             {regions.data.map((r) => <option key={r.code} value={r.code}>{r.name}</option>)}
           </select>
         </label>
-        <select aria-label="시군구" value={form.zipCd} onChange={(e) => change('zipCd', e.target.value)}>
+        <select aria-label="시군구" className={form.zipCd ? '' : 'is-unknown'} value={form.zipCd} onChange={(e) => change('zipCd', e.target.value)}>
           <option value="">시·군·구 선택</option>
           {sigungu.map((s) => <option key={s.code} value={s.code}>{s.label}</option>)}
         </select>
 
         <CodeSelect label="취업 상태" name="jobCd" options={codes.data.jobCd} form={form} change={change} />
         <CodeSelect label="학력" name="schoolCd" options={codes.data.schoolCd} form={form} change={change} />
-        <CodeSelect label="결혼 여부" name="mrgSttsCd" options={codes.data.mrgSttsCd} form={form} change={change} />
+        <FieldHead label="결혼 여부" empty={!form.mrgSttsCd} onUnknown={() => change('mrgSttsCd', '')} />
+        <div className="chips">
+          {codes.data.mrgSttsCd.map((o) => (
+            <button
+              type="button"
+              key={o.code}
+              className={form.mrgSttsCd === o.code ? 'chip active' : 'chip'}
+              onClick={() => change('mrgSttsCd', form.mrgSttsCd === o.code ? '' : o.code)}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
 
-        <label>전공
-          <input value={form.majorName} onChange={(e) => change('majorName', e.target.value)} placeholder="예: 전기전자공학" />
+        <FieldHead label="전공" empty={!form.majorName} onUnknown={() => change('majorName', '')} />
+        <label className="no-label">
+          <input aria-label="전공" className={form.majorName ? '' : 'is-unknown'} value={form.majorName} onChange={(e) => change('majorName', e.target.value)} placeholder="예: 전기전자공학" />
         </label>
 
         <p className="label">해당 대상</p>
@@ -165,8 +189,9 @@ export default function ProfilePage() {
           </button>
         </div>
 
-        <label>소득 (본인 연소득, 만원)
-          <input type="number" min="0" value={form.annualIncome} onChange={(e) => change('annualIncome', e.target.value)} placeholder="비워 두면 모름" />
+        <FieldHead label="소득 (본인 연소득, 만원)" empty={form.annualIncome === ''} onUnknown={() => change('annualIncome', '')} />
+        <label className="no-label">
+          <input aria-label="연소득" className={form.annualIncome === '' ? 'is-unknown' : ''} type="number" min="0" value={form.annualIncome} onChange={(e) => change('annualIncome', e.target.value)} placeholder="비워 두면 모름" />
         </label>
 
         <CodeSelect label="주거 형태" name="housingType" options={codes.data.housingType} form={form} change={change} />
@@ -231,13 +256,25 @@ export default function ProfilePage() {
   );
 }
 
-function CodeSelect({ label, name, options, form, change }) {
+// 칸 이름 + 오른쪽 「모름」 버튼. 누르면 값을 비운다(= 서버에 null = 모름).
+function FieldHead({ label, empty, onUnknown }) {
   return (
-    <label>{label}
-      <select value={form[name] ?? ''} onChange={(e) => change(name, e.target.value)}>
-        <option value="">모름</option>
+    <div className="field-head">
+      <span className="label">{label}</span>
+      <button type="button" className={empty ? 'unknown-btn active' : 'unknown-btn'} onClick={onUnknown}>모름</button>
+    </div>
+  );
+}
+
+function CodeSelect({ label, name, options, form, change }) {
+  const value = form[name] ?? '';
+  return (
+    <>
+      <FieldHead label={label} empty={value === ''} onUnknown={() => change(name, '')} />
+      <select aria-label={label} className={value === '' ? 'is-unknown' : ''} value={value} onChange={(e) => change(name, e.target.value)}>
+        <option value="">선택</option>
         {options.map((o) => <option key={o.code} value={o.code}>{o.label}</option>)}
       </select>
-    </label>
+    </>
   );
 }

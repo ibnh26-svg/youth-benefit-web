@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api, saveLogin } from '../api/client';
+import { PasswordInput, CodeInput } from '../components/AuthInputs';
 
 // 디자인은 두 화면(이메일 → 코드+새 비밀번호)인데, 서버는 세 번 부른다.
 export default function ForgotPasswordPage() {
@@ -53,9 +54,10 @@ export default function ForgotPasswordPage() {
           </form>
         ) : (
           <form onSubmit={reset}>
-            <label>인증 코드<input inputMode="numeric" maxLength={6} required value={code} onChange={(e) => setCode(e.target.value)} /></label>
-            <label>새 비밀번호<input type="password" required value={newPassword} onChange={(e) => setNewPassword(e.target.value)} /></label>
-            <button className="btn-primary">비밀번호 바꾸고 로그인</button>
+            <p className="label">인증 코드</p>
+            <CodeInput value={code} onChange={setCode} />
+            <PasswordInput label="새 비밀번호" required value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+            <button className="btn-primary" disabled={code.length !== 6}>비밀번호 바꾸고 로그인</button>
           </form>
         )}
       </section>

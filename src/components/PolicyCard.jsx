@@ -10,11 +10,21 @@ export function VerdictBadge({ verdict, label }) {
   return <span className={`badge ${VERDICT_CLASS[verdict]}`}>{label}</span>;
 }
 
-// "D-22 · 11.14" / "오늘 마감" / "상시 모집"
+// 짧은 표시: "D-22" / "오늘 마감" / "상시"
+export function dDayLabel(dDay) {
+  if (dDay === null || dDay === undefined) return '상시';
+  return dDay === 0 ? '오늘 마감' : `D-${dDay}`;
+}
+
+// "11.14" 처럼 월.일만
+export function shortDate(date) {
+  return date ? date.slice(5, 10).replace('-', '.') : '';
+}
+
+// "D-22 · 11.14" / "오늘 마감 · 11.02" / "상시 모집"
 export function deadlineText(dDay, endDate) {
   if (dDay === null || dDay === undefined) return '상시 모집';
-  const date = endDate ? endDate.slice(5).replace('-', '.') : '';
-  return dDay === 0 ? `오늘 마감 · ${date}` : `D-${dDay} · ${date}`;
+  return `${dDayLabel(dDay)} · ${shortDate(endDate)}`;
 }
 
 const SOURCE_TEXT = {
@@ -30,9 +40,9 @@ export default function PolicyCard({ item }) {
     <article className="card">
       <div className="row-between">
         <VerdictBadge verdict={verdict} label={verdictLabel} />
-        <span className="deadline">{deadlineText(dDay, policy.applyEndDate)}</span>
+        <span className={dDay !== null && dDay <= 3 ? 'deadline urgent' : 'deadline'}>{deadlineText(dDay, policy.applyEndDate)}</span>
       </div>
-      <h3>{policy.title}</h3>
+      <h3 className="title-clamp">{policy.title}</h3>
       <p className="amount">{policy.support?.label ?? policy.support?.summary}</p>
       <p className="muted">{policy.organization} · {summary}</p>
       <div className="row-between">
@@ -40,5 +50,18 @@ export default function PolicyCard({ item }) {
         <Link to={`/policies/${policy.id}`} className="link">자세히 보기 →</Link>
       </div>
     </article>
+  );
+}
+
+// 「이번 주 마감」 줄에 쓰는 작은 카드: D-day, 판정, 제목, 마감일만
+export function ClosingCard({ item }) {
+  const { policy, verdict, verdictLabel, dDay } = item;
+  return (
+    <Link to={`/policies/${policy.id}`} className="card closing-card">
+      <span className={dDay !== null && dDay <= 3 ? 'dday urgent' : 'dday'}>{dDayLabel(dDay)}</span>
+      <VerdictBadge verdict={verdict} label={verdictLabel} />
+      <strong className="title-clamp">{policy.title}</strong>
+      <span className="muted">{shortDate(policy.applyEndDate)} 마감</span>
+    </Link>
   );
 }

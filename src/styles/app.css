@@ -1,3 +1,6 @@
+/* Pretendard 글꼴 (가이드 15장). 설치 없이 CDN에서 불러온다. */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+
 * { box-sizing: border-box; }
 body { margin: 0; background: #d5dce6; color: var(--text); font-family: Pretendard, 'Noto Sans KR', system-ui, sans-serif; }
 h1 { font-size: 22px; line-height: 1.35; margin: 8px 0; }
@@ -6,10 +9,17 @@ h3 { font-size: 16px; margin: 8px 0 4px; }
 p { margin: 4px 0; }
 
 .app { max-width: var(--app-width); min-height: 100vh; margin: 0 auto; background: var(--bg); padding-bottom: 72px; }
-.app-header { background: var(--blue); color: #fff; font-weight: 700; padding: 12px 16px; }
+.app-header { background: var(--blue); color: #fff; font-weight: 700; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; }
+.brand { display: flex; align-items: center; gap: 8px; color: #fff; text-decoration: none; }
+.logo-mark { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 8px; background: #fff; color: var(--blue); }
+.header-user { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: rgb(255 255 255 / 18%); color: #fff; }
 .app-main { padding: 0 16px 16px; }
 
-.hero { background: var(--blue); color: #fff; margin: 0 -16px 16px; padding: 12px 16px 28px; }
+/* 파란 헤더 대각선 + 하늘색 띠 + 옅은 원 (가이드 15장) */
+.hero { position: relative; overflow: hidden; background: var(--blue); color: #fff; margin: 0 -16px 8px; padding: 12px 16px 72px; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 44px), 0 100%); }
+.hero::before { content: ''; position: absolute; width: 220px; height: 220px; right: -70px; top: -90px; border-radius: 50%; background: rgb(255 255 255 / 8%); pointer-events: none; }
+.hero::after { content: ''; position: absolute; inset: auto 0 0 0; height: 48px; background: linear-gradient(transparent 40%, var(--blue-light) 40% 60%, transparent 60%); transform: skewY(-6deg); pointer-events: none; }
+.hero > * { position: relative; z-index: 1; }
 .hero em { color: #ffd34d; font-style: normal; }
 .hero-sub { font-size: 13px; opacity: .85; }
 .search-entry { display: block; background: #fff; color: var(--muted); padding: 12px 16px; border-radius: 24px; margin-top: 12px; text-decoration: none; }
@@ -75,3 +85,62 @@ progress { width: 100%; }
 .tab-bar a.active { color: var(--blue); font-weight: 700; }
 .dot { position: absolute; top: 4px; margin-left: 2px; background: #b91c1c; color: #fff; font-size: 10px; border-radius: 99px; padding: 1px 5px; }
 .btn-kakao { display: block; width: 100%; font: inherit; font-weight: 700; padding: 13px; border-radius: 12px; border: 0; background: #fee500; color: #191919; margin: 8px 0; }
+
+/* ── 15장에서 추가 ───────────────────────── */
+.row-inline { display: inline-flex; align-items: center; gap: 6px; }
+.title-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: keep-all; }
+.deadline.urgent, .dday.urgent { color: var(--nomatch); }
+
+/* 탭 바 아이콘 */
+.tab-bar a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0 10px; }
+.tab-icon { position: relative; display: inline-flex; }
+.tab-bar .dot { top: -4px; left: 14px; margin: 0; }
+
+/* 이번 주 마감 작은 카드 */
+.closing-card { min-width: 150px !important; max-width: 170px; display: flex; flex-direction: column; gap: 6px; color: var(--text); text-decoration: none; margin-bottom: 4px; }
+.closing-card .badge { align-self: flex-start; }
+.closing-card strong { font-size: 14px; line-height: 1.35; }
+.dday { font-size: 18px; font-weight: 800; color: var(--blue); }
+
+/* 내 정보 「모름」 버튼 */
+.field-head { display: flex; justify-content: space-between; align-items: center; margin-top: 14px; }
+.field-head .label { margin: 0; }
+.unknown-btn { font: inherit; font-size: 12px; border: 1px solid var(--line); background: #fff; color: var(--muted); border-radius: 99px; padding: 3px 10px; }
+.unknown-btn.active { background: var(--check-bg); border-color: transparent; color: var(--check); font-weight: 700; }
+.is-unknown { opacity: .55; background: #f4f6f9; }
+label.no-label { margin-top: 0; }
+
+/* 비밀번호 눈 아이콘 */
+.password-wrap { position: relative; display: block; }
+.password-wrap input { padding-right: 44px; }
+.icon-btn { background: none; border: 0; padding: 4px; color: var(--muted); display: inline-flex; cursor: pointer; }
+.icon-btn.eye { position: absolute; right: 8px; top: 50%; transform: translateY(-40%); }
+.icon-btn-white { background: none; border: 0; padding: 0; color: #fff; display: inline-flex; cursor: pointer; opacity: .9; }
+
+/* 인증 코드 여섯 칸 */
+.code-boxes { display: flex; gap: 8px; margin: 8px 0; }
+.code-boxes input { flex: 1; min-width: 0; text-align: center; font-size: 22px; font-weight: 700; padding: 12px 0; margin: 0; }
+.code-boxes input:focus { outline: 2px solid var(--blue); border-color: transparent; }
+
+/* 로그인 잠김 안내 */
+.lock-box { display: flex; gap: 10px; background: var(--nomatch-bg); color: var(--nomatch); border-radius: 12px; padding: 12px; font-size: 13px; }
+.lock-box strong { display: block; font-size: 14px; }
+
+/* 준비함 안내 상자 */
+.guide-box { background: #fff; border: 1.5px solid var(--blue-light); border-radius: var(--radius); padding: 12px 14px; margin-bottom: 12px; font-size: 13px; }
+.guide-box ol { margin: 8px 0 0; padding-left: 18px; color: var(--muted); }
+.guide-box li { margin: 3px 0; }
+
+/* 알림 안 읽음 파란 점 */
+.unread-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); display: inline-block; }
+
+/* 탭 없는 화면(로그인 등) */
+.app-plain { padding-bottom: 24px; }
+.notice a { color: var(--blue); font-weight: 700; text-decoration: none; }
+
+/* 글씨 크기 통일: label 안에 있든 없든 입력칸은 같은 크기 */
+input, select { font-size: 15px; }
+.row-between select { font-size: 14px; padding: 8px 10px; border-radius: 99px; }
+.code-boxes input { font-size: 22px; }
+/* 파란 영역 아래 여백 조금 줄이기 */
+.hero { padding-bottom: 60px; }

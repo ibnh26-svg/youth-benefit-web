@@ -1,12 +1,13 @@
-import { NavLink, Outlet } from 'react-router-dom';
+import { Link, NavLink, Outlet } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
+import { HomeIcon, SearchIcon, PrepIcon, BellIcon, UserIcon, Logo } from './Icons';
 
 const TABS = [
-  { to: '/', label: '맞춤 홈', end: true },
-  { to: '/search', label: '검색' },
-  { to: '/prep', label: '준비함' },
-  { to: '/notifications', label: '알림' },
-  { to: '/profile', label: '내 정보' },
+  { to: '/', label: '맞춤 홈', end: true, Icon: HomeIcon },
+  { to: '/search', label: '검색', Icon: SearchIcon },
+  { to: '/prep', label: '준비함', Icon: PrepIcon },
+  { to: '/notifications', label: '알림', Icon: BellIcon },
+  { to: '/profile', label: '내 정보', Icon: UserIcon },
 ];
 
 export default function Layout() {
@@ -15,17 +16,21 @@ export default function Layout() {
 
   return (
     <div className="app">
-      <header className="app-header">청년혜택 길잡이</header>
+      <header className="app-header">
+        <Link to="/" className="brand"><Logo />청년혜택 길잡이</Link>
+        <Link to="/profile" className="header-user" aria-label="내 정보"><UserIcon size={20} /></Link>
+      </header>
       <main className="app-main">
         <Outlet />
       </main>
       <nav className="tab-bar">
-        {TABS.map((tab) => (
-          <NavLink key={tab.to} to={tab.to} end={tab.end}>
-            {tab.label}
-            {tab.to === '/notifications' && unread > 0 && (
-              <span className="dot">{unread}</span>
-            )}
+        {TABS.map(({ to, label, end, Icon }) => (
+          <NavLink key={to} to={to} end={end}>
+            <span className="tab-icon">
+              <Icon />
+              {to === '/notifications' && unread > 0 && <span className="dot">{unread > 99 ? '99+' : unread}</span>}
+            </span>
+            {label}
           </NavLink>
         ))}
       </nav>

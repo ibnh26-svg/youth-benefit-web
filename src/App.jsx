@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import Layout from './components/Layout';
 import HomePage from './pages/HomePage';
 import PolicyDetailPage from './pages/PolicyDetailPage';
@@ -30,14 +30,26 @@ export default function App() {
           <Route path="/notifications/settings" element={<NotificationSettingsPage />} />
           <Route path="/custom-policies/new" element={<CustomPolicyPage />} />
         </Route>
-        {/* 아래 탭이 없는 화면 */}
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/verify-email" element={<VerifyEmailPage />} />
-        <Route path="/password/forgot" element={<ForgotPasswordPage />} />
-        <Route path="/auth/kakao/callback" element={<KakaoCallbackPage />} />
-        <Route path="*" element={<Placeholder title="페이지를 찾을 수 없어요" />} />
+        {/* 아래 탭이 없는 화면: 같은 폭(휴대폰 크기) 틀만 씌운다 */}
+        <Route element={<PlainLayout />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/password/forgot" element={<ForgotPasswordPage />} />
+          <Route path="/auth/kakao/callback" element={<KakaoCallbackPage />} />
+          <Route path="*" element={<Placeholder title="페이지를 찾을 수 없어요" />} />
+        </Route>
       </Routes>
     </BrowserRouter>
+  );
+}
+
+function PlainLayout() {
+  return (
+    <div className="app app-plain">
+      <main className="app-main">
+        <Outlet />
+      </main>
+    </div>
   );
 }
