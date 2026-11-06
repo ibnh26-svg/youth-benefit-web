@@ -48,7 +48,7 @@ const SOURCE_TEXT = {
 export default function PolicyCard({ item }) {
   const { policy, verdict, verdictLabel, summary, dDay } = item;
   return (
-    <article className="card">
+    <Link to={`/policies/${policy.id}`} className="card card-link">
       <div className="row-between">
         <VerdictBadge verdict={verdict} label={verdictLabel} />
         <span className={dDay !== null && dDay <= 3 ? 'deadline urgent' : 'deadline'}>{deadlineText(dDay, policy.applyEndDate)}</span>
@@ -58,9 +58,9 @@ export default function PolicyCard({ item }) {
       <p className="muted">{policy.organization} · {summary}</p>
       <div className="row-between">
         <span className="chip-small">{SOURCE_TEXT[policy.source]}</span>
-        <Link to={`/policies/${policy.id}`} className="link">자세히 보기 →</Link>
+        <span className="link">자세히 보기 →</span>
       </div>
-    </article>
+    </Link>
   );
 }
 

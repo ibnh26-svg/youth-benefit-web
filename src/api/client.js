@@ -73,7 +73,9 @@ function refreshTokens() {
 // ── 4. 모든 화면이 쓰는 함수 ─────────────────────
 export async function api(path, { method = 'GET', body } = {}, isRetry = false) {
   const headers = {};
-  if (body !== undefined) headers['Content-Type'] = 'application/json';
+  // 파일을 올릴 때(FormData)는 브라우저가 Content-Type을 알아서 정한다
+  const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
+  if (body !== undefined && !isForm) headers['Content-Type'] = 'application/json';
 
   const token = localStorage.getItem('accessToken');
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -82,7 +84,7 @@ export async function api(path, { method = 'GET', body } = {}, isRetry = false) 
   const response = await fetch(`${BASE_URL}${path}`, {
     method,
     headers,
-    body: body === undefined ? undefined : JSON.stringify(body),
+    body: body === undefined || isForm ? body : JSON.stringify(body),
   });
 
   const data = await readBody(response);

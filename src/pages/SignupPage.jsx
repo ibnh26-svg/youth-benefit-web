@@ -7,6 +7,7 @@ export default function SignupPage() {
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: '', password: '', confirm: '', nickname: '' });
   const [error, setError] = useState(null);
+  const [sending, setSending] = useState(false);
 
   const change = (e) => setForm({ ...form, [e.target.name]: e.target.value });
   const longEnough = form.password.length >= 8 && form.password.length <= 64;
@@ -16,12 +17,15 @@ export default function SignupPage() {
   async function submit(event) {
     event.preventDefault();
     setError(null);
+    setSending(true);
     try {
       const { email, password, nickname } = form;
       const res = await api('/api/v1/auth/signup', { method: 'POST', body: { email, password, nickname } });
       navigate('/verify-email', { state: { email, devCode: res?.devCode } });
     } catch (err) {
       setError(err); // 409 EMAIL_TAKEN이면 "이미 가입된 이메일이에요" 문구가 그대로 나온다
+    } finally {
+      setSending(false);
     }
   }
 
@@ -33,7 +37,6 @@ export default function SignupPage() {
         <p className="hero-sub">이메일로 가입하고, 메일로 받은 코드로 인증해요.</p>
       </section>
       <section className="card">
-        {error && <p className="error-box">{error.message}</p>}
         <label>이메일<input name="email" type="email" required value={form.email} onChange={change} placeholder="example@email.com" /></label>
         <p className="hint">인증 코드를 이 주소로 보내요.</p>
 
@@ -49,7 +52,15 @@ export default function SignupPage() {
         <label>닉네임<input name="nickname" required minLength={2} maxLength={10} value={form.nickname} onChange={change} /></label>
         <p className="hint">맞춤 홈에서 「{form.nickname || '홍길동'}님」처럼 불러 드려요. 2~10자</p>
       </section>
-      <button className="btn-primary" disabled={!longEnough || !mixed || !same}>가입하고 인증 코드 받기</button>
+      {error && (
+        <p className="error-box" role="alert">
+          {error.message}
+          {error.status ? ` (오류 번호 ${error.status}${error.code ? ` · ${error.code}` : ''})` : ''}
+        </p>
+      )}
+      <button className="btn-primary" disabled={sending || !longEnough || !mixed || !same}>
+        {sending ? '보내는 중… (처음엔 1분쯤 걸릴 수 있어요)' : '가입하고 인증 코드 받기'}
+      </button>
       <p className="notice">이미 계정이 있나요? <Link to="/login">로그인</Link></p>
     </form>
   );

@@ -14,6 +14,7 @@ import KakaoCallbackPage from './pages/KakaoCallbackPage';
 import CustomPolicyPage from './pages/CustomPolicyPage';
 import NotificationSettingsPage from './pages/NotificationSettingsPage';
 import Placeholder from './pages/Placeholder';
+import AccountPage from './pages/AccountPage';
 
 export default function App() {
   return (
@@ -29,6 +30,8 @@ export default function App() {
           <Route path="/notifications" element={<NotificationsPage />} />
           <Route path="/notifications/settings" element={<NotificationSettingsPage />} />
           <Route path="/custom-policies/new" element={<CustomPolicyPage />} />
+          <Route path="/custom-policies/:appId/edit" element={<CustomPolicyPage />} />
+          <Route path="/account" element={<AccountPage />} />
         </Route>
         {/* 아래 탭이 없는 화면: 같은 폭(휴대폰 크기) 틀만 씌운다 */}
         <Route element={<PlainLayout />}>

@@ -288,9 +288,10 @@ export default function ProfilePage() {
         {isLoggedIn() ? (
           <>
             <div className="list-row"><span>이메일</span><span className="muted">{account.data?.email}</span></div>
-            <div className="list-row"><span>닉네임</span><span className="muted">{account.data?.nickname}</span></div>
-            <Link className="list-row" to="/password/forgot"><span>비밀번호 변경</span><span className="chev">›</span></Link>
+            <Link className="list-row" to="/account"><span>닉네임</span><span className="row-inline muted">{account.data?.nickname}<span className="chev">›</span></span></Link>
+            <Link className="list-row" to="/account"><span>비밀번호 변경</span><span className="chev">›</span></Link>
             <button type="button" className="list-row" onClick={logout}><span>로그아웃</span><span className="chev">›</span></button>
+            <Link className="list-row danger" to="/account"><span>회원 탈퇴</span><span className="chev">›</span></Link>
           </>
         ) : (
           <Link className="list-row" to="/login"><span>로그인 · 회원가입</span><span className="chev">›</span></Link>

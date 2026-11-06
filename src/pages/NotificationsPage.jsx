@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { useApi } from '../hooks/useApi';
 import { Loading, ErrorBox, Empty } from '../components/StateBox';
-import { SlidersIcon } from '../components/Icons';
+import { SlidersIcon, ChevronIcon, CloseIcon } from '../components/Icons';
+import { VerdictBadge, dDayLabel, shortDate } from '../components/PolicyCard';
 
 // "오늘 08:00" / "어제 18:00" / "10.20 14:00"
 function timeText(iso) {
@@ -26,14 +27,13 @@ const TABS = [
   { value: 'CANCELLED', label: '취소' },
 ];
 
-// 알림 종류. 서버 tab 값이 있으면 그걸, 없으면 label 글자로 짐작한다.
+// 알림 종류 → 화면 탭 이름. 서버는 type(CHANGE·NEW_MATCHES·DEADLINE)과 kind(변경 종류)를 준다.
 function kindOf(n) {
-  if (TABS.some((t) => t.value && t.value === n.tab)) return n.tab;
-  const label = n.label ?? '';
-  if (label.includes('연장')) return 'EXTENDED';
-  if (label.includes('정정')) return 'CORRECTED';
-  if (label.includes('취소')) return 'CANCELLED';
-  if (label.includes('새')) return 'NEW';
+  if (n.type === 'NEW_MATCHES') return 'NEW';
+  if (n.type === 'DEADLINE') return 'DEADLINE';
+  if (n.kind === 'EXTENDED') return 'EXTENDED';
+  if (n.kind === 'CANCELLED' || n.kind === 'REMOVED' || n.kind === 'CLOSED') return 'CANCELLED';
+  if (n.kind === 'CORRECTED' || n.kind === 'UPDATED' || n.kind === 'RESTORED') return 'CORRECTED';
   return 'OTHER';
 }
 
@@ -46,9 +46,71 @@ function linkOf(n, kind) {
   return null;
 }
 
+// 알림 상세(GET /me/notifications/{id}). 열면 서버가 읽음 처리한다.
+// changes(전/후), newPolicies(새 공고 목록), deadline(마감) 중 하나만 채워져 온다.
+function NotificationDetail({ id, onLoaded }) {
+  const detail = useApi(`/api/v1/me/notifications/${id}`);
+
+  useEffect(() => {
+    if (detail.data) onLoaded();
+    // onLoaded는 목록 새로고침이라 한 번만 부르면 된다
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail.data]);
+
+  if (detail.loading) return <p className="hint">불러오는 중이에요…</p>;
+  if (detail.error) return <ErrorBox error={detail.error} onRetry={detail.reload} />;
+
+  const d = detail.data;
+  return (
+    <div className="noti-detail">
+      {d.changes?.map((c) => (
+        <div className="change-pair" key={c.field ?? c.label}>
+          <div className="before">
+            <span className="hint">변경 전 · {c.label}</span>
+            <s>{c.before ?? '없음'}</s>
+          </div>
+          <div className="after">
+            <span className="hint">변경 후 · {c.label}</span>
+            <strong>{c.after ?? '없음'}</strong>
+          </div>
+        </div>
+      ))}
+
+      {d.newPolicies?.length > 0 && (
+        <ul className="new-list">
+          {d.newPolicies.map((p, i) => {
+            const pid = p.policyId ?? p.id ?? p.policy?.id;
+            const title = p.title ?? p.policyTitle ?? p.policy?.title;
+            return (
+              <li key={pid ?? i}>
+                {pid ? <Link to={`/policies/${pid}`}>{title}</Link> : <span>{title}</span>}
+                {p.verdict && <VerdictBadge verdict={p.verdict} label={p.verdictLabel} />}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      {d.deadline && (
+        <p className="deadline-line">
+          {dDayLabel(d.deadline.dDay)}
+          {d.deadline.applyEndDate && ` · ${shortDate(d.deadline.applyEndDate)} 마감`}
+        </p>
+      )}
+    </div>
+  );
+}
+
 export default function NotificationsPage() {
   const [tab, setTab] = useState('');
   const list = useApi(`/api/v1/me/notifications${tab ? `?tab=${tab}` : ''}`);
+  const [openId, setOpenId] = useState(null);
+
+  async function remove(id) {
+    await api(`/api/v1/me/notifications/${id}`, { method: 'DELETE' });
+    if (openId === id) setOpenId(null);
+    list.reload();
+  }
 
   async function readAll() {
     await api('/api/v1/me/notifications/read-all', { method: 'POST' });
@@ -82,6 +144,7 @@ export default function NotificationsPage() {
       {list.data?.items.map((n) => {
         const kind = kindOf(n);
         const link = linkOf(n, kind);
+        const open = openId === n.id;
         return (
           <article className={n.read ? 'card' : 'card card-unread'} key={n.id}>
             <div className="row-between">
@@ -89,11 +152,18 @@ export default function NotificationsPage() {
               <span className="row-inline hint">
                 {!n.read && <span className="unread-dot" aria-label="안 읽음" />}
                 {timeText(n.createdAt)}
+                <button className="icon-btn" aria-label="알림 삭제" onClick={() => remove(n.id)}><CloseIcon size={14} /></button>
               </span>
             </div>
             <h3>{n.policyTitle ?? n.summary}</h3>
             {n.policyTitle && <p className="muted">{n.summary}</p>}
-            {link && <Link className="link" to={link.to}>{link.text}</Link>}
+            {open && <NotificationDetail id={n.id} onLoaded={() => { if (!n.read) list.reload(); }} />}
+            <div className="row-between card-links">
+              {link ? <Link className="link" to={link.to}>{link.text}</Link> : <span />}
+              <button className={open ? 'link-muted fold up' : 'link-muted fold'} onClick={() => setOpenId(open ? null : n.id)}>
+                {open ? '접기' : '자세히'} <ChevronIcon size={14} />
+              </button>
+            </div>
           </article>
         );
       })}

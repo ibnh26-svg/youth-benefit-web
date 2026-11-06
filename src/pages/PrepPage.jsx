@@ -96,14 +96,19 @@ export default function PrepPage() {
               </span>
             </div>
             <h3>{a.title}</h3>
-            <div className="row-between progress-head">
-              <span className="hint">서류 준비</span>
-              <strong>{a.progress.done}/{a.progress.total}</strong>
-            </div>
-            <div className="bar"><span style={{ width: `${a.progress.total ? (a.progress.done / a.progress.total) * 100 : 0}%` }} /></div>
+            {/* 서류가 0개면 「0/0」 대신 아무것도 안 보여 준다 */}
+            {a.progress.total > 0 && (
+              <>
+                <div className="row-between progress-head">
+                  <span className="hint">서류 준비</span>
+                  <strong>{a.progress.done}/{a.progress.total}</strong>
+                </div>
+                <div className="bar"><span style={{ width: `${(a.progress.done / a.progress.total) * 100}%` }} /></div>
+              </>
+            )}
 
             {open ? (
-              <Checklist id={a.id} onChanged={list.reload} />
+              <Checklist id={a.id} onChanged={list.reload} onDeleted={() => { setOpenId(null); list.reload(); }} />
             ) : (
               <div className="row-between card-links">
                 <Link className="link" to={`/policies/${a.policyId}`}>공고 상세 보기 →</Link>
@@ -127,7 +132,7 @@ export default function PrepPage() {
   );
 }
 
-function Checklist({ id, onChanged }) {
+function Checklist({ id, onChanged, onDeleted }) {
   const detail = useApi(`/api/v1/me/applications/${id}`);
   const [adding, setAdding] = useState(false);
   const [newItem, setNewItem] = useState('');
@@ -150,9 +155,28 @@ function Checklist({ id, onChanged }) {
   if (detail.error) return <ErrorBox error={detail.error} onRetry={detail.reload} />;
 
   const base = `/api/v1/me/applications/${id}`;
+  const custom = detail.data.source === 'USER'; // 직접 등록한 공고만 수정·삭제할 수 있다
+
+  async function deleteCustom() {
+    if (!window.confirm(`직접 등록한 「${detail.data.title}」을(를) 삭제할까요? 체크리스트도 함께 지워져요.`)) return;
+    await api(`/api/v1/me/custom-policies/${detail.data.policyId}`, { method: 'DELETE' });
+    onDeleted();
+  }
 
   return (
     <div className="checklist">
+      {custom && (
+        <div className="custom-actions">
+          <span className="chip-small">직접 등록한 공고</span>
+          <span className="row-inline">
+            <Link className="link" to={`/custom-policies/${id}/edit`}>공고 수정</Link>
+            <button type="button" className="link-muted danger-text" onClick={deleteCustom}>공고 삭제</button>
+          </span>
+        </div>
+      )}
+      {detail.data.applyMethod && (
+        <p className="hint"><b>신청 방법</b> · {detail.data.applyMethod}</p>
+      )}
       <div className="row-between status-row">
         <span className="hint">상태</span>
         <select

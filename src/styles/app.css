@@ -311,3 +311,70 @@ form.card { display: block; }
 .dev-code { display: flex; justify-content: space-between; align-items: center; gap: 8px; background: #fff8e1; border: 1px dashed #f0b400; color: #7a5a00; border-radius: 10px; padding: 8px 12px; font-size: 13px; margin: 4px 0 8px; }
 .dev-code b { letter-spacing: 2px; margin-left: 4px; }
 .dev-code button { border: 0; background: #f0b400; color: #fff; font: inherit; font-size: 12px; font-weight: 700; border-radius: 99px; padding: 5px 12px; cursor: pointer; }
+
+/* ── 팀 피드백 반영 ─────────────────────── */
+/* 한글은 단어 중간에서 줄바꿈하지 않기 */
+body { word-break: keep-all; overflow-wrap: anywhere; }
+/* 배지·작은 칩은 한 줄로 */
+.badge, .chip-small, .kind-chip, .dday-pill, .pill-req, .pill-opt, .deadline, .unknown-btn, .btn-white-small { white-space: nowrap; }
+.org { min-width: 0; flex-wrap: wrap; }
+.row-between > .chip-small, .row-between > .badge, .row-between > .deadline { flex: none; }
+
+/* 누를 수 있는 것은 손가락 커서 */
+button, a, select, summary, label.check, input[type='checkbox'], .chip, .card-link { cursor: pointer; }
+button:disabled, .btn-primary:disabled { cursor: not-allowed; }
+
+/* 마우스를 올리면 색이 살짝 바뀌기 (PC) */
+@media (hover: hover) {
+  .btn-primary:not(:disabled):hover { background: #194fbd; }
+  .btn-secondary:hover, .btn-white:hover, .btn-outline:hover, .btn-white-small:hover { background: #eef4ff; }
+  .btn-kakao:hover { background: #f5dc00; }
+  .btn-soft:not(:disabled):hover { background: #7ab0f3; }
+  .chip:not(.active):hover { background: #eef4ff; border-color: var(--blue); }
+  .chip.active:hover { background: #194fbd; }
+  .segmented button:not(.active):hover { color: var(--blue); }
+  .link:hover, .link-muted:hover { opacity: .75; }
+  .card-link:hover, .closing-card:hover { box-shadow: 0 6px 20px rgb(31 95 217 / 16%); transform: translateY(-1px); }
+  .list-row:hover { background: #f7f9fd; }
+  .fold-btn:hover, .dashed-btn:hover { background: #eef4ff; }
+  .tab-bar a:hover { color: var(--blue); }
+  .unknown-btn:not(.active):hover { border-color: var(--check); color: var(--check); }
+  .search-btn:hover { background: #194fbd; }
+}
+button, .chip, .card-link, .closing-card, .list-row { transition: background .15s, box-shadow .15s, transform .15s, border-color .15s, color .15s; }
+
+/* 카드 전체가 링크 */
+.card-link { display: block; color: var(--text); text-decoration: none; }
+
+/* 내 계정 */
+.list-row.danger span:first-child { color: var(--nomatch); }
+.btn-danger { display: block; width: 100%; padding: 13px; border-radius: 12px; border: 1px solid var(--nomatch); background: #fff; color: var(--nomatch); font: inherit; font-weight: 700; margin: 8px 0; }
+.btn-danger:disabled { opacity: .45; }
+@media (hover: hover) { .btn-danger:not(:disabled):hover { background: var(--nomatch-bg); } }
+
+/* 알림 상세: 변경 전/후 상자 */
+.noti-detail { margin-top: 10px; }
+.change-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+.change-pair > div { border-radius: 12px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; min-width: 0; font-size: 14px; }
+.change-pair .before { background: #eef1f5; color: var(--muted); }
+.change-pair .after { background: #eaf2ff; border: 1.5px solid var(--blue-light); }
+.change-pair .hint { margin: 0; font-size: 11.5px; }
+.new-list { list-style: none; margin: 0; padding: 0; }
+.new-list li { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 9px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.new-list li:first-child { border-top: 0; }
+.new-list a { color: var(--text); text-decoration: none; }
+.deadline-line { font-weight: 700; color: var(--nomatch); margin: 4px 0; }
+.fold { display: inline-flex; align-items: center; gap: 2px; text-decoration: none; }
+.fold.up svg { transform: rotate(180deg); }
+
+/* 직접 등록 공고 수정·삭제 */
+.custom-actions { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 12px; padding: 8px 10px; background: #f7f9fd; border-radius: 10px; }
+.custom-actions .row-inline { gap: 12px; }
+.danger-text { color: var(--nomatch); }
+
+/* 캡처 올리기 버튼 */
+button.upload-box { width: 100%; font: inherit; opacity: 1; cursor: pointer; }
+button.upload-box:disabled { opacity: .6; cursor: wait; }
+@media (hover: hover) { button.upload-box:not(:disabled):hover { background: #eef4ff; border-color: var(--blue); } }
+.notice-line { color: var(--blue); font-weight: 700; }
+.kind-DEADLINE { background: var(--check-bg); color: var(--check); }
